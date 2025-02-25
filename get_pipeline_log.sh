@@ -26,6 +26,16 @@ download_job_log() {
   echo "Downloaded log for job ${job_name} (ID: ${job_id})"
 }
 
+# Function to download job artifacts
+download_job_artifacts() {
+  local job_id=$1
+  local job_name=$2
+  curl --header "PRIVATE-TOKEN: ${SECRET_PROJ_ACCESS_TOKEN}" \
+    "${SECRET_PROJ_URL}/jobs/${job_id}/artifacts" \
+    -o "${LOG_DIR}/${job_id}_${job_name}.zip"
+  echo "Downloaded artifacts for job ${job_name} (ID: ${job_id})"
+}
+
 # Get the list of jobs in the pipeline
 jobs=$(get_pipeline_jobs)
 
@@ -34,4 +44,5 @@ echo "$jobs" | jq -c '.[]' | while read -r job; do
   job_id=$(echo "${job}" | jq -r '.id')
   job_name=$(echo "${job}" | jq -r '.name')
   download_job_log "${job_id}" "${job_name}"
+  download_job_artifacts "${job_id}" "${job_name}"
 done
